@@ -1,3 +1,5 @@
+return if Rails.env.test?
+
 curr_dirname = File.dirname(__FILE__)
 %w(
   attachments_controller_patch
