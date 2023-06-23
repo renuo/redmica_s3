@@ -175,21 +175,20 @@ module RedmicaS3
     private
 
     def proc_image_file(src, &block)
-      tmpFile = nil
-      img_file =
-        if src.is_a?(Attachment) || src.is_a?(Array) || /^http/.match?(src)
+      if src.is_a?(Attachment) || src.is_a?(Array)
+        begin
           tmpFile = get_image_file(src)
-          tmpFile.path
-        else
-          src
+          yield tmpFile.path
+        rescue => err
+          logger.error "pdf: Image: error: #{err.message}"
+          false
+        ensure
+          # remove temp files
+          tmpFile.close(true) if tmpFile
         end
-      yield img_file
-    rescue => err
-      logger.error "pdf: Image: error: #{err.message}"
-      false
-    ensure
-      # remove temp files
-      tmpFile.close(true) if tmpFile
+      else
+        super(src, &block)
+      end
     end
   end
 end
