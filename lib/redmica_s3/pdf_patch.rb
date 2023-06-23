@@ -156,20 +156,21 @@ module RedmicaS3
     end
 
     def get_image_file(image_uri)
-      #use a temporary file....
-      tmpFile = Tempfile.new(['tmp_', '.img'], self.class.k_path_cache)
-      tmpFile.binmode
-      if image_uri.is_a?(Attachment)
-        tmpFile.write(image_uri.raw_data)
-      elsif image_uri.is_a?(Array)  # thumbnail
-        tmpFile.write(image_uri.last)
-      else
-        open(image_uri, 'rb') do |read_file|
-          tmpFile.write(read_file.read)
+      if image_uri.is_a?(Attachment) || image_uri.is_a?(Array)
+        #use a temporary file....
+        tmpFile = Tempfile.new(['tmp_', '.img'], self.class.k_path_cache)
+        tmpFile.binmode
+        if image_uri.is_a?(Attachment)
+          tmpFile.write(image_uri.raw_data)
+        else
+          # thumbnail
+          tmpFile.write(image_uri.last)
         end
+        tmpFile.fsync
+        tmpFile
+      else
+        super
       end
-      tmpFile.fsync
-      tmpFile
     end
 
     private
