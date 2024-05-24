@@ -42,21 +42,19 @@ module RedmicaS3
             size_option = "#{size}x#{size}>"
             begin
               tempfile = MiniMagick::Utilities.tempfile(File.extname(source)) do |f| f.write(raw_data) end
-              convert_output =
-                if is_pdf
-                  MiniMagick::Tool::Convert.new do |cmd|
-                    cmd << "#{tempfile.to_path}[0]"
-                    cmd.thumbnail size_option
-                    cmd << 'png:-'
-                  end
-                else
-                  MiniMagick::Tool::Convert.new do |cmd|
-                    cmd << tempfile.to_path
-                    cmd.auto_orient
-                    cmd.thumbnail size_option
-                    cmd << '-'
-                  end
-                end
+              # Generate command
+              convert = MiniMagick::Tool::Convert.new
+              if is_pdf
+                convert << "#{tempfile.to_path}[0]"
+                convert.thumbnail size_option
+                convert << 'png:-'
+              else
+                convert << tempfile.to_path
+                convert.auto_orient
+                convert.thumbnail size_option
+                convert << '-'
+              end
+              convert_output = convert.call
               img = MiniMagick::Image.read(convert_output)
 
               img_blob = img.to_blob
