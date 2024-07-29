@@ -7,6 +7,7 @@ curr_dirname = File.dirname(__FILE__)
 ).each do |require_file|
   require File.join(curr_dirname, 'lib', 'redmica_s3', require_file)
 end
+require File.join(curr_dirname, 'lib', 'mini_magick', 'shell')
 
 Redmine::Plugin.register :redmica_s3 do
   name 'RedMica S3 plugin'
