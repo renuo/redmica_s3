@@ -57,10 +57,9 @@ module RedmicaS3
                 convert << '-'
               end
               # Execute command
-              convert_output = nil
-              Timeout.timeout(Redmine::Configuration['thumbnails_generation_timeout'].to_i) do
-                convert_output = convert.call
-              end
+              timeout = Redmine::Configuration['thumbnails_generation_timeout'].to_i
+              timeout = nil if timeout <= 0
+              convert_output = convert.call(timeout: timeout)
               img = MiniMagick::Image.read(convert_output)
 
               img_blob = img.to_blob
