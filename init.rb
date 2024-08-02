@@ -7,6 +7,7 @@ curr_dirname = File.dirname(__FILE__)
 ).each do |require_file|
   require File.join(curr_dirname, 'lib', 'redmica_s3', require_file)
 end
+require File.join(curr_dirname, 'lib', 'mini_magick', 'shell')
 
 Redmine::Plugin.register :redmica_s3 do
   name 'RedMica S3 plugin'
@@ -15,7 +16,7 @@ Redmine::Plugin.register :redmica_s3 do
   author 'Far End Technologies Corporation'
   author_url 'https://www.farend.co.jp'
 
-  version '2.0.0'
+  version '2.1.0'
   requires_redmine version_or_higher: '5.0.5'
 
   Redmine::Thumbnail.__send__(:include, RedmicaS3::ThumbnailPatch)

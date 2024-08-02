@@ -1,3 +1,5 @@
+require 'timeout'
+
 module RedmicaS3
   module ThumbnailPatch
     extend ActiveSupport::Concern
@@ -42,21 +44,22 @@ module RedmicaS3
             size_option = "#{size}x#{size}>"
             begin
               tempfile = MiniMagick::Utilities.tempfile(File.extname(source)) do |f| f.write(raw_data) end
-              convert_output =
-                if is_pdf
-                  MiniMagick::Tool::Convert.new do |cmd|
-                    cmd << "#{tempfile.to_path}[0]"
-                    cmd.thumbnail size_option
-                    cmd << 'png:-'
-                  end
-                else
-                  MiniMagick::Tool::Convert.new do |cmd|
-                    cmd << tempfile.to_path
-                    cmd.auto_orient
-                    cmd.thumbnail size_option
-                    cmd << '-'
-                  end
-                end
+              # Generate command
+              convert = MiniMagick::Tool::Convert.new
+              if is_pdf
+                convert << "#{tempfile.to_path}[0]"
+                convert.thumbnail size_option
+                convert << 'png:-'
+              else
+                convert << tempfile.to_path
+                convert.auto_orient
+                convert.thumbnail size_option
+                convert << '-'
+              end
+              # Execute command
+              timeout = Redmine::Configuration['thumbnails_generation_timeout'].to_i
+              timeout = nil if timeout <= 0
+              convert_output = convert.call(timeout: timeout)
               img = MiniMagick::Image.read(convert_output)
 
               img_blob = img.to_blob
@@ -66,6 +69,9 @@ module RedmicaS3
               RedmicaS3::Connection.put(target, File.basename(target), img_blob, img.mime_type,
                 {target_folder: target_folder, digest: new_digest}
               )
+            rescue Timeout::Error
+              Rails.logger.error("Creating thumbnail timed out:\nCommand: #{convert.command.join(' ')}")
+              return nil
             rescue => e
               Rails.logger.error("Creating thumbnail failed (#{e.message}):")
               return nil
