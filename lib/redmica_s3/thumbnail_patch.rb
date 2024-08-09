@@ -58,10 +58,19 @@ module RedmicaS3
                 convert.thumbnail size_option
                 convert << output_tempfile.path
               end
-              # Execute command
+              # Execute command (Note: Timeout control reuses code from Redmine itself)
               timeout = Redmine::Configuration['thumbnails_generation_timeout'].to_i
               timeout = nil if timeout <= 0
-              convert.call(timeout: timeout)
+              pid = nil
+              cmd = convert.command
+              Timeout.timeout(timeout) do
+                pid = Process.spawn(*cmd)
+                _, status = Process.wait2(pid)
+                unless status.success?
+                  Rails.logger.error("Creating thumbnail failed (#{status.exitstatus}):\nCommand: #{cmd.join(' ')}")
+                  return nil
+                end
+              end
               img = MiniMagick::Image.read(File.binread(output_tempfile.path))
               img_blob = img.to_blob
               sha = Digest::SHA256.new
@@ -71,7 +80,8 @@ module RedmicaS3
                 {target_folder: target_folder, digest: new_digest}
               )
             rescue Timeout::Error
-              Rails.logger.error("Creating thumbnail timed out:\nCommand: #{convert.command.join(' ')}")
+              Process.kill('KILL', pid) if pid
+              Rails.logger.error("Creating thumbnail timed out:\nCommand: #{cmd.join(' ')}")
               return nil
             rescue => e
               Rails.logger.error("Creating thumbnail failed (#{e.message}):")
