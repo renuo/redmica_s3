@@ -47,7 +47,12 @@ module RedmicaS3
               tempfile = MiniMagick::Utilities.tempfile(extname_source) do |f| f.write(raw_data) end
               output_tempfile = MiniMagick::Utilities.tempfile(is_pdf ? ".png" : extname_source)
               # Generate command
-              convert = MiniMagick::Tool::Convert.new
+              convert =
+                if MiniMagick.version < Gem::Version.new('5.0.0')
+                  MiniMagick::Tool::Convert.new # MiniMagick::Tool::Convert is deprecated in MiniMagick 5.0.0
+                else
+                  MiniMagick.convert
+                end
               if is_pdf
                 convert << "#{tempfile.to_path}[0]"
                 convert.thumbnail size_option
