@@ -76,8 +76,7 @@ module RedmicaS3
                   return nil
                 end
               end
-              img = MiniMagick::Image.read(File.binread(output_tempfile.path))
-              img_blob = img.to_blob
+              img_blob = File.binread(output_tempfile.path)
               mime_type = Marcel::MimeType.for(img_blob)
               sha = Digest::SHA256.new
               sha.update(img_blob)
