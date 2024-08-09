@@ -46,6 +46,8 @@ module RedmicaS3
               extname_source = File.extname(source)
               tempfile = MiniMagick::Utilities.tempfile(extname_source) do |f| f.write(raw_data) end
               output_tempfile = MiniMagick::Utilities.tempfile(is_pdf ? ".png" : extname_source)
+              in_filepath = tempfile.path
+              out_filepath = output_tempfile.path
               # Generate command
               convert =
                 if MiniMagick.version < Gem::Version.new('5.0.0')
@@ -54,14 +56,14 @@ module RedmicaS3
                   MiniMagick.convert
                 end
               if is_pdf
-                convert << "#{tempfile.to_path}[0]"
+                convert << "#{in_filepath}[0]"
                 convert.thumbnail size_option
-                convert << "png:#{output_tempfile.path}"
+                convert << "png:#{out_filepath}"
               else
-                convert << tempfile.to_path
+                convert << in_filepath
                 convert.auto_orient
                 convert.thumbnail size_option
-                convert << output_tempfile.path
+                convert << out_filepath
               end
               # Execute command (Note: Timeout control reuses code from Redmine itself)
               timeout = Redmine::Configuration['thumbnails_generation_timeout'].to_i
@@ -76,7 +78,7 @@ module RedmicaS3
                   return nil
                 end
               end
-              img_blob = File.binread(output_tempfile.path)
+              img_blob = File.binread(out_filepath)
               mime_type = Marcel::MimeType.for(img_blob)
               sha = Digest::SHA256.new
               sha.update(img_blob)
