@@ -43,25 +43,26 @@ module RedmicaS3
 
             size_option = "#{size}x#{size}>"
             begin
-              tempfile = MiniMagick::Utilities.tempfile(File.extname(source)) do |f| f.write(raw_data) end
+              extname_source = File.extname(source)
+              tempfile = MiniMagick::Utilities.tempfile(extname_source) do |f| f.write(raw_data) end
+              output_tempfile = MiniMagick::Utilities.tempfile(is_pdf ? ".png" : extname_source)
               # Generate command
               convert = MiniMagick::Tool::Convert.new
               if is_pdf
                 convert << "#{tempfile.to_path}[0]"
                 convert.thumbnail size_option
-                convert << 'png:-'
+                convert << "png:#{output_tempfile.path}"
               else
                 convert << tempfile.to_path
                 convert.auto_orient
                 convert.thumbnail size_option
-                convert << '-'
+                convert << output_tempfile.path
               end
               # Execute command
               timeout = Redmine::Configuration['thumbnails_generation_timeout'].to_i
               timeout = nil if timeout <= 0
-              convert_output = convert.call(timeout: timeout)
-              img = MiniMagick::Image.read(convert_output)
-
+              convert.call(timeout: timeout)
+              img = MiniMagick::Image.read(File.binread(output_tempfile.path))
               img_blob = img.to_blob
               sha = Digest::SHA256.new
               sha.update(img_blob)
@@ -77,6 +78,7 @@ module RedmicaS3
               return nil
             ensure
               tempfile.unlink if tempfile
+              output_tempfile.unlink if output_tempfile
             end
           end
 
