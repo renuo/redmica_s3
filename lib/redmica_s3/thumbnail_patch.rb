@@ -78,10 +78,11 @@ module RedmicaS3
               end
               img = MiniMagick::Image.read(File.binread(output_tempfile.path))
               img_blob = img.to_blob
+              mime_type = Marcel::MimeType.for(img_blob)
               sha = Digest::SHA256.new
               sha.update(img_blob)
               new_digest = sha.hexdigest
-              RedmicaS3::Connection.put(target, File.basename(target), img_blob, img.mime_type,
+              RedmicaS3::Connection.put(target, File.basename(target), img_blob, mime_type,
                 {target_folder: target_folder, digest: new_digest}
               )
             rescue Timeout::Error
