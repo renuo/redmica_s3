@@ -24,6 +24,4 @@ Redmine::Plugin.register :redmica_s3 do
   Redmine::Export::PDF::ITCPDF.__send__(:include, RedmicaS3::PdfPatch)
   Import.__send__(:include, RedmicaS3::ImportPatch)
   AttachmentsController.__send__(:include, RedmicaS3::AttachmentsControllerPatch)
-
-  RedmicaS3::Connection.create_bucket
 end

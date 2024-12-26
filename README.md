@@ -12,9 +12,6 @@ This [Redmine](http://www.redmine.org) plugin makes file attachments be stored o
 6. Restart web server/upload to production/whatever
 7. *Optional*: Run `rake redmica_s3:files_to_s3` to upload files in your files folder to s3
 
-## Options Overview
-* The bucket specified in s3.yml will be created automatically when the plugin is loaded (this is generally when the server starts).
-
 ## Options Detail
 * access_key_id: string key (required)
 * secret_access_key: string key (required)

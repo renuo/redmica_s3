@@ -17,11 +17,6 @@ module RedmicaS3
     }
 
     class << self
-      def create_bucket
-        bucket = own_bucket
-        bucket.create unless bucket.exists?
-      end
-
       def folder
         str = @@s3_options[:folder]
         (
