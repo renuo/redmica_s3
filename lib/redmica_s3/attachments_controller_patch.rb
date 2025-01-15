@@ -13,7 +13,7 @@ module RedmicaS3
 
       def show
         respond_to do |format|
-          format.html {
+          format.html do
             if @attachment.container.respond_to?(:attachments)
               @attachments = @attachment.container.attachments.to_a
               if index = @attachments.index(@attachment)
@@ -40,7 +40,7 @@ module RedmicaS3
             else
               render action: 'other'
             end
-          }
+          end
           format.api
         end
       end
