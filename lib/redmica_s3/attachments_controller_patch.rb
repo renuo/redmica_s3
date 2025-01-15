@@ -60,7 +60,6 @@ module RedmicaS3
 
       def thumbnail
         begin
-          raise unless @attachment.thumbnailable?
           digest, raw_data = @attachment.thumbnail(:size => params[:size])
           raise unless raw_data
           if stale?(etag: digest, template: false)
