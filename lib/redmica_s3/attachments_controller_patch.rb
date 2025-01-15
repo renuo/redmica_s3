@@ -70,7 +70,7 @@ module RedmicaS3
           end
         rescue
           # No thumbnail for the attachment or thumbnail could not be created
-          head 404
+          head :not_found
         end
       end
 
