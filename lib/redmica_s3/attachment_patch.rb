@@ -158,7 +158,7 @@ module RedmicaS3
             "An error occured while generating thumbnail for #{diskfile_s3} " \
               "to #{target}\nException was: #{e.message}"
           )
-          return
+          nil
         end
       end
 
