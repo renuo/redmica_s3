@@ -66,7 +66,7 @@ module RedmicaS3
             send_data raw_data,
               filename: filename_for_content_disposition(@attachment.filename),
               type: detect_content_type(@attachment, true),
-              disposition: 'inline'
+              disposition: 'attachment'
           end
         rescue
           # No thumbnail for the attachment or thumbnail could not be created
