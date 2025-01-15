@@ -74,6 +74,12 @@ module RedmicaS3
         end
       end
 
+      private
+
+      def send_data(data, options={})
+        headers['content-security-policy'] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+        super
+      end
     end
 
   end
