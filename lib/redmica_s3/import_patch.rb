@@ -24,7 +24,7 @@ module RedmicaS3
         if file_exists?
           begin
             content = s3_object.get.body.read(256)
-            separator = [',', ';'].sort_by {|sep| content.count(sep) }.last
+            separator = [',', ';'].sort_by {|sep| content.count(sep)}.last
           rescue => e
           end
         end
