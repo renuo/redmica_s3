@@ -136,7 +136,7 @@ module RedmicaS3
       # Returns the full path the attachment thumbnail, or nil
       # if the thumbnail cannot be generated.
       def thumbnail(options = {})
-        return if !readable? || !thumbnailable?
+        return unless (readable? && thumbnailable?)
 
         size = options[:size].to_i
         if size > 0
@@ -177,7 +177,7 @@ module RedmicaS3
 
         return if src == dest
 
-        if !RedmicaS3::Connection.move_object(src, dest)
+        unless RedmicaS3::Connection.move_object(src, dest)
           Rails.logger.error "Could not move attachment from #{src} to #{dest}"
           return
         end
