@@ -91,7 +91,7 @@ module RedmicaS3
         if @temp_file
           self.disk_directory = target_directory
           self.disk_filename = Attachment.disk_filename(filename, disk_directory)
-          logger.info("Saving attachment '#{self.diskfile}' (#{@temp_file.size} bytes)") if logger
+          Rails.logger.info("Saving attachment '#{self.diskfile}' (#{@temp_file.size} bytes)")
           sha = Digest::SHA256.new
           if @temp_file.respond_to?(:read)
             buffer = ""
