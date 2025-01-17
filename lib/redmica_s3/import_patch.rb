@@ -26,7 +26,7 @@ module RedmicaS3
           begin
             content = s3_object.get.body.read(256)
 
-            separator = [',', ';'].sort_by {|sep| content.count(sep)}.last
+            separator = [',', ';'].max_by {|sep| content.count(sep)}
 
             guessed_encoding = Redmine::CodesetUtil.guess_encoding(content)
             encoding =
