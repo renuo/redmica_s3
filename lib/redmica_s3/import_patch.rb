@@ -21,12 +21,14 @@ module RedmicaS3
 
       def set_default_settings(options={})
         separator = lu(user, :general_csv_separator)
+        wrapper = '"'
         encoding = lu(user, :general_csv_encoding)
         if file_exists?
           begin
             content = s3_object.get.body.read(256)
 
             separator = [',', ';'].max_by {|sep| content.count(sep)}
+            wrapper = ['"', "'"].max_by {|quote_char| content.count(quote_char)}
 
             guessed_encoding = Redmine::CodesetUtil.guess_encoding(content)
             encoding =
@@ -37,7 +39,6 @@ module RedmicaS3
           rescue => e
           end
         end
-        wrapper = '"'
 
         date_format = lu(user, "date.formats.default", :default => "foo")
         date_format = self.class::DATE_FORMATS.first unless self.class::DATE_FORMATS.include?(date_format)
