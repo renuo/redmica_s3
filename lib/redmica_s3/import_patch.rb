@@ -19,47 +19,6 @@ module RedmicaS3
       module ClassMethods
       end
 
-      def set_default_settings(options={})
-        separator = lu(user, :general_csv_separator)
-        wrapper = '"'
-        encoding = lu(user, :general_csv_encoding)
-        if file_exists?
-          begin
-            content = read_file_head
-
-            separator = [',', ';'].max_by {|sep| content.count(sep)}
-            wrapper = ['"', "'"].max_by {|quote_char| content.count(quote_char)}
-
-            guessed_encoding = Redmine::CodesetUtil.guess_encoding(content)
-            encoding =
-              (guessed_encoding && (
-                Setting::ENCODINGS.detect {|e| e.casecmp?(guessed_encoding)} ||
-                Setting::ENCODINGS.detect {|e| Encoding.find(e) == Encoding.find(guessed_encoding)}
-              )) || lu(user, :general_csv_encoding)
-          rescue => e
-          end
-        end
-
-        date_format = lu(user, "date.formats.default", :default => "foo")
-        date_format = self.class::DATE_FORMATS.first unless self.class::DATE_FORMATS.include?(date_format)
-
-        self.settings.merge!(
-          'separator' => separator,
-          'wrapper' => wrapper,
-          'encoding' => encoding,
-          'date_format' => date_format,
-          'notifications' => '0'
-        )
-
-        if options.key?(:project_id) && options[:project_id].present?
-          # Do not fail if project doesn't exist
-          begin
-            project = Project.find(options[:project_id])
-            self.settings.merge!('mapping' => {'project_id' => project.id})
-          rescue; end
-        end
-      end
-
       # Returns the relative path of the file to import
       def filepath
         File.join(RedmicaS3::Connection.import_folder.presence, self.filename.presence) if super
