@@ -136,7 +136,7 @@ module RedmicaS3
       # Returns the full path the attachment thumbnail, or nil
       # if the thumbnail cannot be generated.
       def thumbnail(options = {})
-        return unless (readable? && thumbnailable?)
+        return unless (thumbnailable? && readable?)
 
         size = options[:size].to_i
         if size > 0
