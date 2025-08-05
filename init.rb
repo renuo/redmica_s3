@@ -17,8 +17,8 @@ Redmine::Plugin.register :redmica_s3 do
   author 'Far End Technologies Corporation'
   author_url 'https://www.farend.co.jp'
 
-  version '1.0.12'
-  requires_redmine version_or_higher: '4.1.0'
+  version '3.0.0'
+  requires_redmine version_or_higher: '6.0.0'
 
   Redmine::Thumbnail.__send__(:include, RedmicaS3::ThumbnailPatch)
   Redmine::Utils.__send__(:include, RedmicaS3::UtilsPatch)
@@ -26,6 +26,4 @@ Redmine::Plugin.register :redmica_s3 do
   Redmine::Export::PDF::ITCPDF.__send__(:include, RedmicaS3::PdfPatch)
   Import.__send__(:include, RedmicaS3::ImportPatch)
   AttachmentsController.__send__(:include, RedmicaS3::AttachmentsControllerPatch)
-
-  RedmicaS3::Connection.create_bucket
 end
